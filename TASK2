@@ -1,101 +1,66 @@
-/*GAME OF LIFE SIMULATION
-Implement Conway's Game of Life, a cellular automaton
-simulation.
-Allow users to set the initial state, run the simulation,
-and observe the evolution of cells*/
+//ONLINE QUIZ GAME
 #include <iostream>
 #include <vector>
-#include <unistd.h> // for sleep() function
+#include <string>
 
 using namespace std;
 
-const int ROWS = 10;
-const int COLS = 10;
+struct Question {
+    string question;
+    vector<string> options;
+    char answer;
+};
 
-// Function to allow user to set the initial state of the grid
-void initializeGrid(vector<vector<int>>& grid) {
-    int liveCells, row, col;
-    cout << "Enter the number of live cells to initialize: ";
-    cin >> liveCells;
-    
-    for (int i = 0; i < liveCells; ++i) {
-        cout << "Enter the row and column for live cell " << i + 1 << ": ";
-        cin >> row >> col;
-        if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
-            grid[row][col] = 1; // Set the cell as alive
-        } else {
-            cout << "Invalid position! Try again." << endl;
-            --i; // Repeat this iteration
-        }
-    }
+vector<Question> getQuizQuestions() {
+    return {
+        {"What is the capital of France?", {"a) Paris", "b) London", "c) Rome", "d) Madrid"}, 'a'},
+        {"What is 2 + 2?", {"a) 3", "b) 4", "c) 5", "d) 6"}, 'b'},
+        {"Who wrote 'Hamlet'?", {"a) Charles Dickens", "b) J.K. Rowling", "c) William Shakespeare", "d) Mark Twain"}, 'c'}
+    };
 }
 
-// Function to display the grid
-void displayGrid(const vector<vector<int>>& grid) {
-    for (int row = 0; row < ROWS; ++row) {
-        for (int col = 0; col < COLS; ++col) {
-            cout << (grid[row][col] ? "O" : ".") << " ";
+void startQuiz(const vector<Question>& quiz) {
+    int score = 0;
+    char userAnswer;
+    vector<bool> correct(quiz.size(), false);  // Stores whether the user answered correctly
+
+    for (size_t i = 0; i < quiz.size(); ++i) {
+        cout << "Question " << i + 1 << ": " << quiz[i].question << endl;
+        for (const auto& option : quiz[i].options) {
+            cout << option << endl;
+        }
+        cout << "Your answer (a/b/c/d): ";
+        cin >> userAnswer;
+
+        if (userAnswer == quiz[i].answer) {
+            cout << "Correct!\n";
+            score++;
+            correct[i] = true;
+        } else {
+            cout << "Wrong!\n";
         }
         cout << endl;
     }
-    cout << endl;
-}
 
-// Function to count the number of live neighbors of a cell
-int countLiveNeighbors(const vector<vector<int>>& grid, int row, int col) {
-    int liveNeighbors = 0;
-    for (int i = -1; i <= 1; ++i) {
-        for (int j = -1; j <= 1; ++j) {
-            if (i == 0 && j == 0) continue; // Skip the cell itself
-            int newRow = row + i;
-            int newCol = col + j;
-            if (newRow >= 0 && newRow < ROWS && newCol >= 0 && newCol < COLS) {
-                liveNeighbors += grid[newRow][newCol];
-            }
-        }
+    // Display score
+    cout << "Quiz completed! Your score is: " << score << "/" << quiz.size() << endl;
+
+    // Display correct answers at the end
+    cout << "\nCorrect Answers:\n";
+    for (size_t i = 0; i < quiz.size(); ++i) {
+        cout << "Question " << i + 1 << ": " << quiz[i].question << endl;
+        cout << "Correct answer: " << quiz[i].answer << endl;
     }
-    return liveNeighbors;
-}
-
-// Function to apply the rules of the game and update the grid
-void updateGrid(vector<vector<int>>& grid) {
-    vector<vector<int>> newGrid(ROWS, vector<int>(COLS, 0));
-
-    for (int row = 0; row < ROWS; ++row) {
-        for (int col = 0; col < COLS; ++col) {
-            int liveNeighbors = countLiveNeighbors(grid, row, col);
-
-            // Apply the rules of Conway's Game of Life
-            if (grid[row][col] == 1) {
-                // Cell dies unless it has 2 or 3 neighbors
-                if (liveNeighbors < 2 || liveNeighbors > 3) {
-                    newGrid[row][col] = 0;
-                } else {
-                    newGrid[row][col] = 1;
-                }
-            } else {
-                // A dead cell comes to life if it has exactly 3 live neighbors
-                if (liveNeighbors == 3) {
-                    newGrid[row][col] = 1;
-                }
-            }
-        }
-    }
-
-    // Update the grid with the new state
-    grid = newGrid;
 }
 
 int main() {
-    vector<vector<int>> grid(ROWS, vector<int>(COLS, 0));
+    string username;
+    cout << "Enter your name to register: ";
+    getline(cin, username);
+    cout << "Welcome, " << username << "! Let's start the quiz.\n\n";
 
-    initializeGrid(grid);  // Allow the user to set the initial state
-
-    while (true) {
-        displayGrid(grid);
-        updateGrid(grid);
-        sleep(1); // Pause for 1 second before the next generation
-    }
+    vector<Question> quiz = getQuizQuestions();
+    startQuiz(quiz);
 
     return 0;
 }
